@@ -17,7 +17,8 @@ export interface GeoLocationState {
 
 export interface VerificationResponse {
   success: boolean;
-  message: string;
+  message?: string;
+  detail?: string;
   user_name?: string;
   distance_meters?: number;
   confidence?: number;

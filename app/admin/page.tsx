@@ -1,6 +1,6 @@
-import { API_BASE_URL } from "@/lib/api";
 "use client";
 
+import { API_BASE_URL } from "@/lib/api";
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {

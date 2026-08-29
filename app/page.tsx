@@ -1,6 +1,6 @@
-import { API_BASE_URL } from "@/lib/api";
 "use client";
 
+import { API_BASE_URL } from "@/lib/api";
 import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { Camera, MapPin, CheckCircle, AlertCircle, RefreshCw, Eye, LogIn, LogOut, User, Shield } from "lucide-react";
@@ -11,6 +11,7 @@ import { CheckInStep, VerificationResponse } from "../types/attendance";
 interface ExtendedVerificationResponse extends VerificationResponse {
   type?: "CHECK_IN" | "CHECK_OUT";
   employee_code?: string;
+  detail?: string;
 }
 
 export default function AttendancePage() {
