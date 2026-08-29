@@ -13,7 +13,7 @@ interface ExtendedVerificationResponse extends VerificationResponse {
   employee_code?: string;
 }
 
-export default function AttendancePage() {
+export default function AttendanceClient() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [attendanceType, setAttendanceType] = useState<"CHECK_IN" | "CHECK_OUT">("CHECK_IN");
   const [step, setStep] = useState<CheckInStep>("INITIALIZING");
@@ -143,13 +143,13 @@ export default function AttendancePage() {
               href="/login"
               className="text-[11px] font-medium text-slate-300 hover:text-white bg-slate-800 border border-slate-700 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1"
             >
-              <User className="w-3.5 h-3.5 text-blue-400" /> Employee Login
+              <User className="w-3 h-3 text-blue-400" /> Employee Login
             </Link>
             <Link
               href="/admin"
               className="text-[11px] font-medium text-amber-300 hover:text-amber-200 bg-amber-950/60 border border-amber-800/50 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1"
             >
-              <Shield className="w-3.5 h-3.5 text-amber-400" /> Admin
+              <Shield className="w-3 h-3 text-amber-400" /> Admin
             </Link>
           </div>
         </div>

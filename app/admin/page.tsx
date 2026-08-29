@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/lib/api";
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -38,7 +39,7 @@ export default function AdminDashboard() {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/attendance/logs");
+      const res = await fetch("${API_BASE_URL}/api/v1/attendance/logs");
       if (res.ok) {
         const data = await res.json();
         setRecords(data);
