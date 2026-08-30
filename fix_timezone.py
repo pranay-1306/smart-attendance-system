@@ -1,4 +1,9 @@
-from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException
+import os
+
+base = "C:/Users/Palivela Pranay/attendance-web/backend/app"
+backend_local = "C:/Users/Palivela Pranay/backend/app"
+
+main_code = '''from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -283,3 +288,12 @@ def get_logs(db: Session = Depends(get_db)):
         }
         for l in logs
     ]
+'''
+
+for target_dir in [base, backend_local]:
+    if os.path.exists(target_dir):
+        with open(f"{target_dir}/main.py", "w", encoding="utf-8") as f:
+            f.write(main_code)
+        print(f"[+] Updated main.py in: {target_dir}")
+
+print("\n[+] Timezone updated to Indian Standard Time (IST / Asia/Kolkata)!")
