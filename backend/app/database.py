@@ -4,7 +4,6 @@ from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
 
 DATABASE_URL = "sqlite:///./attendance.db"
-
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -12,10 +11,10 @@ Base = declarative_base()
 class Office(Base):
     __tablename__ = "offices"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, default="Main Corporate Office")
+    name = Column(String, default="Main Office")
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
-    radius_meters = Column(Float, default=50000.0)  # Generous radius for testing
+    radius_meters = Column(Float, default=150.0)
 
 class Employee(Base):
     __tablename__ = "employees"
@@ -23,9 +22,12 @@ class Employee(Base):
     employee_code = Column(String, unique=True, index=True)
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True)
-    face_embedding = Column(JSON, nullable=False)
+    password = Column(String, default="123456")
+    role = Column(String, default="EMPLOYEE")  # 'EMPLOYEE' or 'ADMIN'
+    department = Column(String, default="Engineering")
+    designation = Column(String, default="Software Engineer")
+    face_embedding = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-
     attendances = relationship("AttendanceLog", back_populates="employee")
 
 class AttendanceLog(Base):
@@ -39,7 +41,6 @@ class AttendanceLog(Base):
     distance_meters = Column(Float, nullable=False)
     confidence_score = Column(Float, nullable=False)
     status = Column(String, default="VERIFIED")
-
     employee = relationship("Employee", back_populates="attendances")
 
 Base.metadata.create_all(bind=engine)
