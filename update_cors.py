@@ -1,4 +1,12 @@
-from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException
+import os
+import shutil
+
+backend_paths = [
+    "C:/Users/Palivela Pranay/backend/app/main.py",
+    "C:/Users/Palivela Pranay/attendance-web/backend/app/main.py"
+]
+
+code = '''from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import datetime, date
@@ -181,3 +189,12 @@ def update_office(name: str = Form(...), latitude: float = Form(...), longitude:
 def get_logs(db: Session = Depends(get_db)):
     logs = db.query(AttendanceLog).order_by(AttendanceLog.timestamp.desc()).limit(100).all()
     return [{"id": l.id, "name": l.employee.name, "employee_code": l.employee.employee_code, "timestamp": l.timestamp.isoformat(), "type": l.type, "distance_meters": l.distance_meters, "confidence": l.confidence_score, "status": l.status} for l in logs]
+'''
+
+for path in backend_paths:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(code)
+    print(f"[+] Updated: {path}")
+
+print("\n[+] Backend CORS updated for all cloud origins!")
