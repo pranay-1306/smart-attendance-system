@@ -1,28 +1,27 @@
 "use client";
 
-import { API_BASE_URL } from "@/lib/api";
 import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { Camera, MapPin, CheckCircle, AlertCircle, RefreshCw, Eye, LogIn, LogOut, User, Shield } from "lucide-react";
+import { Camera, MapPin, CheckCircle, AlertCircle, RefreshCw, LogIn, LogOut, User, Shield, ThumbsUp } from "lucide-react";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { useFaceLiveness } from "../hooks/useFaceLiveness";
 import { CheckInStep, VerificationResponse } from "../types/attendance";
+import { API_BASE_URL } from "@/lib/api";
 
 interface ExtendedVerificationResponse extends VerificationResponse {
   type?: "CHECK_IN" | "CHECK_OUT";
   employee_code?: string;
-  detail?: string;
 }
 
 export default function AttendancePage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [attendanceType, setAttendanceType] = useState<"CHECK_IN" | "CHECK_OUT">("CHECK_IN");
   const [step, setStep] = useState<CheckInStep>("INITIALIZING");
-  const [statusMessage, setStatusMessage] = useState<string>("Initializing camera and AI models...");
+  const [statusMessage, setStatusMessage] = useState<string>("Initializing camera...");
   const [apiResult, setApiResult] = useState<ExtendedVerificationResponse | null>(null);
 
   const { latitude, longitude, accuracy, getCoordinates } = useGeolocation();
-  const { modelsLoaded, hasFace, blinkDetected, startDetection, stopDetection } = useFaceLiveness(videoRef);
+  const { modelsLoaded, hasFace, startDetection, stopDetection } = useFaceLiveness(videoRef);
 
   const startCamera = async () => {
     try {
@@ -38,7 +37,7 @@ export default function AttendancePage() {
         videoRef.current.onloadedmetadata = () => {
           videoRef.current?.play();
           setStep("DETECTING_FACE");
-          setStatusMessage("Align your face inside the circle");
+          setStatusMessage("Align your face and show thumbs up 👍");
           startDetection();
         };
       }
@@ -56,25 +55,16 @@ export default function AttendancePage() {
 
   useEffect(() => {
     if (step === "DETECTING_FACE" && hasFace) {
-      setStep("LIVENESS_CHALLENGE");
-      setStatusMessage("Please blink your eyes naturally to verify liveness.");
-    } else if (step === "LIVENESS_CHALLENGE" && !hasFace) {
-      setStep("DETECTING_FACE");
-      setStatusMessage("Face lost. Please look into the camera.");
+      setStatusMessage("Face detected! Show 👍 and click Capture below");
+    } else if (step === "DETECTING_FACE" && !hasFace) {
+      setStatusMessage("Align your face inside the circle");
     }
   }, [hasFace, step]);
-
-  useEffect(() => {
-    if (blinkDetected && step === "LIVENESS_CHALLENGE") {
-      stopDetection();
-      handleCaptureAndSubmit();
-    }
-  }, [blinkDetected, step]);
 
   const handleCaptureAndSubmit = async () => {
     setStep("SUBMITTING");
     const actionText = attendanceType === "CHECK_IN" ? "Check-In" : "Check-Out";
-    setStatusMessage(`Verifying location and recording ${actionText}...`);
+    setStatusMessage(`Verifying location & recording ${actionText}...`);
 
     try {
       const coords = await getCoordinates();
@@ -98,7 +88,7 @@ export default function AttendancePage() {
         formData.append("type", attendanceType);
         formData.append("accuracy", coords.accuracy.toString());
 
-        const response = await fetch("${API_BASE_URL}/api/v1/attendance/check-in", {
+        const response = await fetch(`${API_BASE_URL}/api/v1/attendance/check-in`, {
           method: "POST",
           body: formData,
         });
@@ -125,7 +115,7 @@ export default function AttendancePage() {
   const handleReset = () => {
     setApiResult(null);
     setStep("DETECTING_FACE");
-    setStatusMessage("Align your face inside the circle");
+    setStatusMessage("Align your face and show thumbs up 👍");
     startDetection();
   };
 
@@ -133,24 +123,24 @@ export default function AttendancePage() {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
         
-        {/* Navigation Header */}
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
           <div>
             <h1 className="text-lg font-bold tracking-tight text-white">Workplace Portal</h1>
-            <p className="text-xs text-slate-400">Biometric & GPS Attendance</p>
+            <p className="text-xs text-slate-400">Gesture Biometrics & GPS Attendance</p>
           </div>
           <div className="flex items-center gap-2">
             <Link
               href="/login"
               className="text-[11px] font-medium text-slate-300 hover:text-white bg-slate-800 border border-slate-700 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1"
             >
-              <User className="w-3.5 h-3.5 text-blue-400" /> Employee Login
+              <User className="w-3 h-3 text-blue-400" /> Employee
             </Link>
             <Link
               href="/admin"
               className="text-[11px] font-medium text-amber-300 hover:text-amber-200 bg-amber-950/60 border border-amber-800/50 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1"
             >
-              <Shield className="w-3.5 h-3.5 text-amber-400" /> Admin
+              <Shield className="w-3 h-3 text-amber-400" /> Admin
             </Link>
           </div>
         </div>
@@ -197,20 +187,20 @@ export default function AttendancePage() {
             className="w-full h-full object-cover transform -scale-x-100"
           />
 
+          {/* Guide Circle */}
           <div
-            className={`absolute inset-0 border-2 rounded-full m-8 pointer-events-none transition-colors duration-300 ${
+            className={`absolute inset-0 border-2 rounded-full m-8 pointer-events-none transition-colors duration-200 ${
               hasFace
-                ? blinkDetected
-                  ? attendanceType === "CHECK_IN" ? "border-emerald-400" : "border-rose-400"
-                  : "border-blue-400"
+                ? attendanceType === "CHECK_IN" ? "border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.3)]" : "border-rose-400 shadow-[0_0_15px_rgba(251,113,133,0.3)]"
                 : "border-slate-600 border-dashed"
             }`}
           />
 
+          {/* Status Overlay */}
           <div className="absolute bottom-3 inset-x-4">
             <div className="bg-slate-950/85 backdrop-blur-md px-3 py-2 rounded-lg border border-slate-700/50 flex items-center gap-2">
               {step === "SUBMITTING" && <RefreshCw className="w-4 h-4 text-blue-400 animate-spin" />}
-              {step === "LIVENESS_CHALLENGE" && <Eye className="w-4 h-4 text-amber-400 animate-pulse" />}
+              {step === "DETECTING_FACE" && <ThumbsUp className="w-4 h-4 text-blue-400" />}
               {step === "SUCCESS" && <CheckCircle className="w-4 h-4 text-emerald-400" />}
               {step === "ERROR" && <AlertCircle className="w-4 h-4 text-rose-400" />}
               <span className="text-xs font-medium text-slate-200">{statusMessage}</span>
@@ -218,11 +208,27 @@ export default function AttendancePage() {
           </div>
         </div>
 
+        {/* Instant Thumbs-Up Capture Button */}
+        {step === "DETECTING_FACE" && (
+          <button
+            type="button"
+            onClick={handleCaptureAndSubmit}
+            className={`w-full py-3 rounded-xl text-xs font-bold shadow-xl transition flex items-center justify-center gap-2 active:scale-95 ${
+              attendanceType === "CHECK_IN"
+                ? "bg-emerald-600 hover:bg-emerald-500 text-white"
+                : "bg-rose-600 hover:bg-rose-500 text-white"
+            }`}
+          >
+            <ThumbsUp className="w-4 h-4" /> 
+            {hasFace ? `👍 Capture ${attendanceType === "CHECK_IN" ? "Check-In" : "Check-Out"} Now` : "Align Face & Capture"}
+          </button>
+        )}
+
         {/* GPS Status */}
         <div className="bg-slate-950 rounded-lg p-3 border border-slate-800 text-xs space-y-1">
           <div className="flex items-center justify-between text-slate-400">
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-slate-500" /> Current Location:
+              <MapPin className="w-3.5 h-3.5 text-slate-500" /> GPS Location:
             </span>
             <span className={latitude ? "text-emerald-400 font-mono" : "text-amber-400"}>
               {latitude ? `${latitude.toFixed(5)}, ${longitude?.toFixed(5)}` : "Acquiring GPS..."}
