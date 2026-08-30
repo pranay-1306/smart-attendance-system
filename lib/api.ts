@@ -1,2 +1,5 @@
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "") || "http://127.0.0.1:8000";
+  (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL
+    ? process.env.NEXT_PUBLIC_API_URL
+    : "https://smart-attendance-system-nmo4.onrender.com"
+  ).replace(/\/+$/, "");

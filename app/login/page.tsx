@@ -36,7 +36,7 @@ export default function LoginPage() {
         setError(data.detail || "Invalid credentials.");
       }
     } catch {
-      setError("Unable to reach backend server on port 8000.");
+      setError("Connecting to cloud backend... If the server was sleeping, please wait 30 seconds and try again.");
     } finally {
       setLoading(false);
     }
