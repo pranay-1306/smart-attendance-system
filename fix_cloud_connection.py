@@ -1,4 +1,17 @@
-"use client";
+import os
+
+base = "C:/Users/Palivela Pranay/attendance-web"
+render_url = "https://smart-attendance-system-nmo4.onrender.com"
+
+# 1. Update lib/api.ts
+os.makedirs(f"{base}/lib", exist_ok=True)
+with open(f"{base}/lib/api.ts", "w", encoding="utf-8") as f:
+    f.write(f'''export const API_BASE_URL = "{render_url}";
+''')
+
+# 2. Update app/login/page.tsx with robust error reporting and direct URL
+with open(f"{base}/app/login/page.tsx", "w", encoding="utf-8") as f:
+    f.write(f'''"use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -23,23 +36,23 @@ export default function LoginPage() {
       formData.append("email_or_code", emailOrCode);
       formData.append("password", password);
 
-      const res = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+      const res = await fetch(`${{API_BASE_URL}}/api/v1/auth/login`, {{
         method: "POST",
         body: formData,
-      });
+      }});
 
       const data = await res.json();
       if (res.ok && data.success) {
         localStorage.setItem("currentUser", JSON.stringify(data.employee));
         router.push("/dashboard");
-      } else {
+      } else {{
         setError(data.detail || data.message || "Invalid credentials.");
-      }
-    } catch (err: any) {
-      setError(`Network error: ${err.message || "Unable to reach server."}`);
-    } finally {
+      }}
+    } catch (err: any) {{
+      setError(`Network error: ${{err.message || "Unable to reach server."}}`);
+    }} finally {{
       setLoading(false);
-    }
+    }}
   };
 
   return (
@@ -112,4 +125,19 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
+}}
+''')
+
+# 3. Update backend main.py with correct CORS specification
+backend_file = f"{base}/backend/app/main.py"
+if os.path.exists(backend_file):
+    with open(backend_file, "r", encoding="utf-8") as f:
+        backend_code = f.read()
+    
+    # Fix CORS credentials collision
+    backend_code = backend_code.replace("allow_credentials=True", "allow_credentials=False")
+    with open(backend_file, "w", encoding="utf-8") as f:
+        f.write(backend_code)
+    print("[+] Fixed backend CORS configuration!")
+
+print("[+] Cloud connection updated successfully!")
